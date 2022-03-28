@@ -2,7 +2,6 @@ upstream loadbalancer {
 least_conn;
 server web1:80;
 server web2:80;
-server web3:80;
 }
 server {
 location / {

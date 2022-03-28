@@ -94,5 +94,5 @@ services:
                 max-size: 1g
         image: nginx
         depends_on:
-            - php3
+            - php1
   
