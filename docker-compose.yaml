@@ -1,0 +1,98 @@
+version: '3.3'
+services:
+    php1:
+        volumes:
+            - './webbase/websites:/web'
+        restart: always
+        build:
+            context: ./
+            dockerfile: phpDockerfile
+        environment:
+            AppName: Server 1
+    web1:
+        environment:
+            - phpcont=php1
+        volumes:
+            - './webbase/websites:/web'
+            - './default.conf.template:/etc/nginx/templates/default.conf.template'
+
+        restart: always
+        logging:
+            options:
+                max-size: 1g
+        image: nginx
+        depends_on:
+            - php1
+    web2:
+        volumes:
+            - './webbase/websites:/web'
+            - './default.conf.template:/etc/nginx/templates/default.conf.template'
+            
+        restart: always
+        environment:
+            - phpcont=php2
+        logging:
+            options:
+                max-size: 1g
+        image: nginx
+        depends_on:
+            - php2
+    balancer:
+        ports:
+            - '80:80'
+        restart: always
+        logging:
+            options:
+                max-size: 1g
+        build:
+            context: ./
+            dockerfile: Dockerfile
+        depends_on:
+            - web1
+            - web2
+    php2:
+        volumes:
+            - './webbase/websites:/web'
+        restart: always
+        build:
+            context: ./
+            dockerfile: phpDockerfile
+        environment:
+            AppName: Server 2
+    db:
+        image: mysql:latest
+        ports:
+            - '3306:3306'
+        volumes:
+            - './webbase/mysqldata:/var/lib/mysql'
+            - './webbase/sqldat.sql:/docker-entrypoint-initdb.d/sqldat.sql:ro'
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: Password!
+            MYSQL_DATABASE: estore
+            MYSQL_USER: user
+            MYSQL_PASSWORD: Password!
+    php3:
+        volumes:
+            - './webbase/websites:/web'
+        restart: always
+        build:
+            context: ./
+            dockerfile: phpDockerfile
+        environment:
+            AppName: Server 3
+    web3:
+        environment:
+            - phpcont=php3
+        volumes:
+            - './webbase/websites:/web'
+            - './default.conf.template:/etc/nginx/templates/default.conf.template'
+
+        restart: always
+        logging:
+            options:
+                max-size: 1g
+        image: nginx
+        depends_on:
+            - php3
+  
